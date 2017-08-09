@@ -41,7 +41,7 @@ class FunctionRender(object):
         return self.render()
 
 
-_ENUM_ARRAY_RENDER_TEMPLATE = """const char[] {name} = {{
+_ENUM_ARRAY_RENDER_TEMPLATE = """static const char* {name}[] = {{
     {values}
 }};
 """
@@ -55,9 +55,9 @@ class EnumValuesArrayRender(object):
         cur_array_index = 0
         for (enum_name, enum_value) in self.definition.get_sequential():
             while enum_value > cur_array_index:
-                yield 'NULL'
+                yield 'NULL,'
                 cur_array_index += 1
-            yield '"{}"'.format(enum_name)
+            yield '"{}",'.format(enum_name)
             cur_array_index += 1
     def render(self):
         name = self.array_name
@@ -71,9 +71,14 @@ class EnumValuesArrayRender(object):
         return self.render()
 
 
-def render_functions(functions, RenderClass=FunctionRender):
+def render_enum_value_arrays(enums):
+    enum_str_list = [str(EnumValuesArrayRender(enums[enum_name]))
+                     for enum_name in enums]
+    return '\n'.join(enum_str_list)
+
+def render_functions(functions, RenderClass=FunctionRender, **kwargs):
     func_str_list = [str(RenderClass(functions[func_name],
-                                     func_name)) 
+                                     func_name=func_name, **kwargs)) 
                      for func_name in functions ]
     return '\n'.join(func_str_list)
 
