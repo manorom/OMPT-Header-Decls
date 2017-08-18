@@ -54,7 +54,7 @@ def parse_ompt_enum_typedefs(tu):
 
 
 class OMPTInitializeFunctionRender(FunctionRender):
-    def __init__(self, ompt_callbacks):
+    def __init__(self, ompt_callbacks, add_entry_points=None):
         ompt_initialize_args = [FunctionArgs(type='ompt_function_lookup_t',
                                              name='lookup'),
                                 FunctionArgs(type='struct ompt_fns_t *',
@@ -65,6 +65,9 @@ class OMPTInitializeFunctionRender(FunctionRender):
         super(OMPTInitializeFunctionRender, self).__init__(func_def,
                                                            'ompt_initialize')
         self.ompt_callbacks = ompt_callbacks
+        self.add_entry_points = add_entry_points
+        if not self.add_entry_points:
+            self.add_entry_points = []
 
     def _get_func_body(self):
         s1 = '    ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");\n' 
@@ -77,8 +80,9 @@ class OMPTInitializeFunctionRender(FunctionRender):
         return s1 + s2 + s3
     
 
-def render_ompt_initialize_func(ompt_callbacks):
-   return OMPTInitializeFunctionRender(ompt_callbacks)
+def render_ompt_initialize_func(ompt_callbacks, add_entry_points=None):
+   return OMPTInitializeFunctionRender(ompt_callbacks,
+                                       add_entry_points)
 
 
 def render_ompt_finalize_func():

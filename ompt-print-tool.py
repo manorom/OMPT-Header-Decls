@@ -47,10 +47,10 @@ class PrintFunctionRender(FunctionRender):
             else:
                 yield (arg.name + '=%" PRIu64 "', '(uint64_t)'+arg.name)
     def _get_func_body(self):
-        func_body = '   printf("{cbname}: {fmt_str}\\n", {fmt_args});\n'
+        print_str = '    printf("{cbname}: {fmt_str}\\n", {fmt_args});\n'
         format_str = ', '.join([fmt for (fmt, _) in self._get_format_str_args()])
         format_args = ', '.join([fmt_arg for (_, fmt_arg) in self._get_format_str_args()])
-        return func_body.format(cbname=self.func_name[:-5],
+        return print_str.format(cbname=self.func_name[:-5],
                                 fmt_str=format_str,
                                 fmt_args=format_args)
 

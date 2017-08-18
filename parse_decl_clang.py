@@ -4,6 +4,8 @@ from clang import cindex
 
 FunctionArgs = namedtuple('FunctionArgs', ['name', 'type'])
 
+FunctionDefinition = namedtuple('FunctionDefinition',
+                                ['name', 'return_type', 'arguments'])
 
 class EnumDefinition(object):
     def __init__(self, type_name, values=None):
@@ -23,13 +25,6 @@ class EnumDefinition(object):
     def __str__(self):
         return 'EnumDefinition \'{}\': {}'.format(self.type_name,
                                                   list(self.get_sequential()))
-
-
-class FunctionDefinition(object):
-    def __init__(self, name, return_type, arguments):
-        self.name = name
-        self.return_type = return_type
-        self.arguments = arguments
 
 
 def is_func_pointer_typedef(cursor):
@@ -72,6 +67,7 @@ def parse_enum(cursor):
     for ch in cursor.get_children():
         enum.add_entry(ch.spelling, ch.enum_value)
     return enum
+
 
 def parse_enum_typedef(cursor):
     enum = parse_enum(next(cursor.get_children()))
