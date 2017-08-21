@@ -5,7 +5,9 @@ from parse_decl_clang import (is_func_pointer_typedef,
                               FunctionDefinition,
                               FunctionArgs,
                               is_enum_typedef,
-                              parse_enum_typedef)
+                              parse_enum_typedef,
+                              is_struct_typedef,
+                              parse_struct_typedef)
 from decl_print import FunctionRender
 
 def parse_ompt_callback_macro(cursor):
@@ -51,6 +53,34 @@ def parse_ompt_enum_typedefs(tu):
             and is_enum_typedef(c)):
             ompt_enum_types[c.spelling] = parse_enum_typedef(c)
     return ompt_enum_types
+
+
+def parse_ompt_record_types(tu):
+    record_types = {}
+    for ch in tu.cursor.get_children():
+        if (ch.kind is cindex.CursorKind.TYPEDEF_DECL and
+                is_struct_typedef(ch) and
+                ch.spelling.startswith('ompt_record_') and
+                ch.spelling != 'ompt_record_type_t' and
+                ch.spelling != 'ompt_record_ompt_t'):
+            record_types[ch.spelling] = (parse_struct_typedef(ch))
+    return record_types
+
+
+def _parse_record_union(cursor):
+    union_members = []
+    for ch in cursor.get_children():
+        if ch.kind is cindex.CursorKind.FIELD_DECL:
+            union_members.append((ch.spelling, ch.type.spelling))
+    return union_members 
+
+
+def parse_ompt_record_ompt_union(tu):
+    for cursor in tu.cursor.get_children():
+        if cursor.spelling == 'ompt_record_ompt_t':
+            for ch in next(cursor.get_children()).get_children():
+                if ch.spelling == 'record':
+                    return _parse_record_union(ch.type.get_declaration())
 
 
 class OMPTInitializeFunctionRender(FunctionRender):

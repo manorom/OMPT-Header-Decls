@@ -55,16 +55,16 @@ class EnumValuesArrayRender(object):
         cur_array_index = 0
         for (enum_name, enum_value) in self.definition.get_sequential():
             while enum_value > cur_array_index:
-                yield 'NULL,'
+                yield 'NULL'
                 cur_array_index += 1
-            yield '"{}",'.format(enum_name)
+            yield '"{}"'.format(enum_name)
             cur_array_index += 1
     def render(self):
         name = self.array_name
         if not name:
             name =  self.definition.type_name + '_values'
         array_values = self._render_values()
-        array_values_str = '\n    '.join(array_values)
+        array_values_str = ',\n    '.join(array_values)
         return _ENUM_ARRAY_RENDER_TEMPLATE.format(name=name,
                                                   values=array_values_str)
     def __str__(self):

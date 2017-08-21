@@ -61,7 +61,7 @@ tu = index.parse(sys.argv[1], options=cindex.TranslationUnit.PARSE_DETAILED_PROC
 # parse macro to get all callbacks + their types
 ompt_callbacks = parse_ompt_callbacks(tu)
 
-# parse all ompt func pointer typedefs 
+# parse all ompt func pointer typedefs
 ompt_callback_types = parse_ompt_callback_types(tu)
 
 # parse all enums

@@ -18,6 +18,9 @@ class EnumDefinition(object):
         k_v_list.sort(key=lambda x: x[1])
         for entry in k_v_list:
             yield entry
+    @property
+    def value_range(self):
+        return max(self.values.iteritems(), key=lambda x: x[1])[1]
     def __iter__(self):
         return self.get_sequential()
     def __len__(self):
@@ -30,7 +33,7 @@ class EnumDefinition(object):
 def is_func_pointer_typedef(cursor):
     pointee = None
     if cursor.underlying_typedef_type.kind is cindex.TypeKind.POINTER:
-        pointee = cursor.underlying_typedef_type.get_pointee()    
+        pointee = cursor.underlying_typedef_type.get_pointee()
 
     if pointee:
         pointee_kind = pointee.get_canonical().kind
@@ -73,3 +76,40 @@ def parse_enum_typedef(cursor):
     enum = parse_enum(next(cursor.get_children()))
     enum.type_name = cursor.spelling
     return enum
+
+
+def is_struct_typedef(cursor):
+    if cursor.kind is cindex.CursorKind.TYPEDEF_DECL:
+        try:
+            if next(cursor.get_children()).kind is cindex.CursorKind.STRUCT_DECL:
+                return True
+        except StopIteration:
+            return False
+    return False
+
+
+StructField = namedtuple('StructField', ['field_name', 'field_type'])
+
+class StructDefinition(object):
+    def __init__(self, type_name, fields=None):
+        self.type_name = type_name
+        # i wish we could use OrderedDict here but it requires python 2.7
+        self.fields = fields if fields else []
+    def add_field(self, field_name, field_type):
+        self.fields.append(StructField(field_name, field_type))
+    def __str__(self):
+        return('Struct {}({})'.format(self.type_name, self.fields))
+
+
+def parse_struct(cursor):
+    struct = StructDefinition(cursor.spelling)
+    for ch in cursor.get_children():
+        if ch.kind is cindex.CursorKind.FIELD_DECL:
+            struct.add_field(ch.spelling, ch.type.spelling)
+    return struct
+
+
+def parse_struct_typedef(cursor):
+    struct = parse_struct(next(cursor.get_children()))
+    struct.type_name = cursor.spelling
+    return struct
