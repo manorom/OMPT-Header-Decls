@@ -19,18 +19,17 @@ def parse_ompt_callback_macro(cursor):
         if t.spelling == 'FOREACH_OMPT_EVENT':
             continue
         if t.spelling == 'macro':
-            continue 
+            continue
         callback_name = t.spelling
         callback_type = next(relevant_tokens).spelling
         ompt_callback_types[callback_name] = callback_type
-    return ompt_callback_types 
+    return ompt_callback_types
 
 
 def parse_ompt_callbacks(tu):
     for c in tu.cursor.get_children():
         if (c.kind is cindex.CursorKind.MACRO_DEFINITION
-            and c.spelling == 'FOREACH_OMPT_EVENT'):
-            
+                and c.spelling == 'FOREACH_OMPT_EVENT'):
             return parse_ompt_callback_macro(c)
 
 
@@ -72,7 +71,7 @@ def _parse_record_union(cursor):
     for ch in cursor.get_children():
         if ch.kind is cindex.CursorKind.FIELD_DECL:
             union_members.append((ch.spelling, ch.type.spelling))
-    return union_members 
+    return union_members
 
 
 def parse_ompt_record_ompt_union(tu):
@@ -100,15 +99,15 @@ class OMPTInitializeFunctionRender(FunctionRender):
             self.add_entry_points = []
 
     def _get_func_body(self):
-        s1 = '    ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");\n' 
-        
+        s1 = '    ompt_set_callback_t ompt_set_callback = (ompt_set_callback_t) lookup("ompt_set_callback");\n'
+
         callback_registration_str = ['ompt_set_callback({cbname}, (ompt_callback_t) &{cbfunc});'.format(cbname=self.ompt_callbacks[name],
                                                                                                         cbfunc=name)
                                      for name in self.ompt_callbacks]
         s2 = '\n    ' + '\n    '.join(callback_registration_str)
         s3 = '\n\n    return 1;\n'
         return s1 + s2 + s3
-    
+
 
 def render_ompt_initialize_func(ompt_callbacks, add_entry_points=None):
    return OMPTInitializeFunctionRender(ompt_callbacks,
@@ -130,4 +129,3 @@ ompt_fns_t *ompt_start_tool(unsigned int omp_version, const char *runtime_versio
     return &fns;
 }"""
 
- 

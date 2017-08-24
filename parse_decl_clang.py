@@ -25,9 +25,6 @@ class EnumDefinition(object):
         return self.get_sequential()
     def __len__(self):
         return len(self.values)
-    def __str__(self):
-        return 'EnumDefinition \'{}\': {}'.format(self.type_name,
-                                                  list(self.get_sequential()))
 
 
 def is_func_pointer_typedef(cursor):
