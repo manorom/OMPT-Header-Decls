@@ -4,4 +4,4 @@ Clang python bindings can be installed with
     $ pip install --user clang
 
 Usage:
-    $ python ompt-{dummy-tool,dummy-tool,tracing-print}.py <PATH TO ompt.h>
+    $ python ompt-{dummy-tool,print-tool,tracing-print}.py <PATH TO ompt.h>
